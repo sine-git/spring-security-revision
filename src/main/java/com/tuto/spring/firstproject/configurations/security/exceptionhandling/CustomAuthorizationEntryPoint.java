@@ -6,9 +6,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+@Component
 public class CustomAuthorizationEntryPoint implements AuthenticationEntryPoint {
 
     @Override
@@ -17,16 +19,17 @@ public class CustomAuthorizationEntryPoint implements AuthenticationEntryPoint {
 
         String jsonResponse = """
         {
-            "status": 401,
-            "error": "Unauthorized",
-            "message": "The user is not authenticated yet.",
+            "status": 401,            
+            "message": "%s",
             "path": "%s",
             "timestamp": "%s"
         }
         """.formatted(
+                authException.getMessage(),
                 request.getRequestURI(),
                 java.time.Instant.now().toString()
         );
+        response.setContentType("application/json");
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         //response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.getWriter().write(jsonResponse);

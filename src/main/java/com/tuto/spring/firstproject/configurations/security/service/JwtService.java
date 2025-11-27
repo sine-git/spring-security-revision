@@ -25,7 +25,7 @@ public class JwtService {
     }
 
     private Claims extractClaim(String token) {
-        return Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJwt(token).getBody();
+        return Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token).getBody();
     }
 
     private Key getSigningKey() {
@@ -43,7 +43,13 @@ public class JwtService {
     Date exractExpirationDate(String token ){
         return extractClaim(token, Claims::getExpiration);
     }
-    String exractUsername(String token ){
+    public String exractUsername(String token ){
         return extractClaim(token, Claims::getSubject);
     }
+    public Boolean isTokenExpired(String token){
+        Date expirationDate = exractExpirationDate(token);
+        Date now = new Date();
+        return expirationDate.before(new Date());
+    }
+
 }

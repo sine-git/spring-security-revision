@@ -6,6 +6,7 @@ import com.tuto.spring.firstproject.configurations.security.service.JwtService;
 import com.tuto.spring.firstproject.user.UserRepository;
 import com.tuto.spring.firstproject.user.entity.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,9 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     public AuthResponseDto login(AuthRequestDto authRequestDto){
-        User user = userRepository.findByUsernameAndPassword(authRequestDto.getUsername(), passwordEncoder.encode(authRequestDto.getPassword())).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = userRepository.findByUsername(authRequestDto.getUsername()).orElseThrow(() ->  new BadCredentialsException("Invalid Username or password"));
+        if(!passwordEncoder.matches(authRequestDto.getPassword(), user.getPassword()))
+            new BadCredentialsException("Invalid Username or password");
         final Map<String, Object> claims = new HashMap<String, Object>();
         claims.put("role", user.getRole().getKey());
         claims.put("username", user.getUsername());
